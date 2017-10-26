@@ -146,113 +146,123 @@ uint32 public constant decimals = 3;
 uint256 public  exchangeRate=200;
 uint256 public INITIAL_SUPPLY = 100000000 * 1000;
 
- address addressSellAgent;
-      address addressSellAgentSiteReg;
-      address addressSellAgentCreators;
-        address addressSellAgentBounty;
+address addressSellAgent;
+address addressSellAgentSiteReg;
+address addressSellAgentCreators;
+address addressSellAgentBounty;
+address addressRateAgent;
  
- uint256 public START_PRESALE_TIMESTAMP   = 1508716800; // 2017-10-23
- uint256 public START_PREICO_TIMESTAMP   = 1511136000;  // 2017-11-20
- uint256 public START_ICO_TIMESTAMP   = 1515974400;     // 2018-01-15
+uint256 public START_PRESALE_TIMESTAMP   = 1508716800; // 2017-10-23
+uint256 public START_PREICO_TIMESTAMP   = 1511136000;  // 2017-11-20
+uint256 public START_ICO_TIMESTAMP   = 1515974400;     // 2018-01-15
  
-  uint256 public END_PRESALE_TIMESTAMP   = 0;
-  uint256 public END_PREICO_TIMESTAMP   = 0;
-  uint256 public END_ICO_TIMESTAMP   = 0;
+uint256 public END_PRESALE_TIMESTAMP   = 0;
+uint256 public END_PREICO_TIMESTAMP   = 0;
+uint256 public END_ICO_TIMESTAMP   = 0;
  
-  uint256 public LOCKUP_3M_ICO_TIMESTAMP   = 0;
-  uint256 public LOCKUP_6M_ICO_TIMESTAMP   = 0;
+uint256 public LOCKUP_3M_ICO_TIMESTAMP   = 0;
+uint256 public LOCKUP_6M_ICO_TIMESTAMP   = 0;
  
-  uint32 public  PRESALE_HARDCAP=  250000;
-  uint32 public   PREICO_HARDCAP=  950000;
-  uint32 public      ICO_HARDCAP=11450000;
+uint32 public  PRESALE_HARDCAP=  250000;
+uint32 public   PREICO_HARDCAP=  950000;
+uint32 public      ICO_HARDCAP=11450000;
   
-  uint256 public   PRESALE_PERIOD=28;
-  uint256 public   PREICO_PERIOD=28;
-  uint256 public     ICO_PERIOD=28;
+uint256 public   PRESALE_PERIOD=28;
+uint256 public   PREICO_PERIOD=28;
+uint256 public     ICO_PERIOD=28;
  
-    address addressPayForService=0xc0e9a93881A988E59e65C5F809cB6919d8277c99;
+address addressPayForService=0xc0e9a93881A988E59e65C5F809cB6919d8277c99;
 
 
     
-        uint256 public tokensForBounty=0;
-        uint256 public tokensForSiteReg=0;
-        uint256 public tokensForCreators=0;
+uint256 public tokensForBounty=0;
+uint256 public tokensForSiteReg=0;
+uint256 public tokensForCreators=0;
         
 
-      mapping(address => uint256) arrayCreators;
-      mapping(address => uint256) arrayBounty;
+mapping(address => uint256) arrayCreators;
+mapping(address => uint256) arrayBounty;
 
 event PayForServiceETHEvent(address indexed from, uint256 value);
 event PayForServiceCHLEvent(address indexed from, uint256 value);
+event BurnFrom(address indexed from, uint256 value);
 
 event TransferCreators(address indexed to, uint256 value);
 event TransferBounty(address indexed to, uint256 value);
 event TransferSiteReg(address indexed to, uint256 value);
 
 function ChiliToken() {
-  totalSupply = INITIAL_SUPPLY;
+        totalSupply = INITIAL_SUPPLY;
  
-     tokensForSiteReg= INITIAL_SUPPLY.div(100);
-     tokensForBounty= INITIAL_SUPPLY.mul(4).div(100);
-     tokensForCreators=INITIAL_SUPPLY.mul(2).div(10);
+        tokensForSiteReg= INITIAL_SUPPLY.div(100);
+        tokensForBounty= INITIAL_SUPPLY.mul(4).div(100);
+        tokensForCreators=INITIAL_SUPPLY.mul(2).div(10);
      
      
-     balances[msg.sender] = INITIAL_SUPPLY-tokensForBounty-tokensForCreators-tokensForSiteReg;
+        balances[msg.sender] = INITIAL_SUPPLY-tokensForBounty-tokensForCreators-tokensForSiteReg;
  
- END_PRESALE_TIMESTAMP=START_PRESALE_TIMESTAMP+(PRESALE_PERIOD * 1 days);  
- END_PREICO_TIMESTAMP=START_PREICO_TIMESTAMP+(PREICO_PERIOD * 1 days);   
- END_ICO_TIMESTAMP=START_ICO_TIMESTAMP+(ICO_PERIOD * 1 days);   
+        END_PRESALE_TIMESTAMP=START_PRESALE_TIMESTAMP+(PRESALE_PERIOD * 1 days);  
+        END_PREICO_TIMESTAMP=START_PREICO_TIMESTAMP+(PREICO_PERIOD * 1 days);   
+        END_ICO_TIMESTAMP=START_ICO_TIMESTAMP+(ICO_PERIOD * 1 days);   
  
- LOCKUP_3M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(90 * 1 days); 
- LOCKUP_6M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(180 * 1 days);  
+        LOCKUP_3M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(90 * 1 days); 
+        LOCKUP_6M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(180 * 1 days);  
  
-            addressSellAgent=msg.sender;
-         addressPayForService=msg.sender;
-         addressSellAgentSiteReg=msg.sender;
-         addressSellAgentCreators=msg.sender;
-         addressSellAgentBounty=msg.sender;
+        addressSellAgent=msg.sender;
+        addressPayForService=msg.sender;
+        addressSellAgentSiteReg=msg.sender;
+        addressSellAgentCreators=msg.sender;
+        addressSellAgentBounty=msg.sender;
+        addressRateAgent=msg.sender;
  
 }
-    function setRate( uint32 newRate)  onlyOwner {
-	  exchangeRate = newRate;
+    function SetRate( uint32 newRate)   external returns (bool) {
+        require(msg.sender==addressRateAgent) ;
+        require(newRate>0);
+	    exchangeRate = newRate;
+	   return true;
      }
      
-       function update_START_PRESALE_TIMESTAMP( uint256 newTS)  onlyOwner {
+       function Update_START_PRESALE_TIMESTAMP( uint256 newTS)  onlyOwner {
 	  START_PRESALE_TIMESTAMP = newTS;
 	   END_PRESALE_TIMESTAMP=START_PRESALE_TIMESTAMP+(PRESALE_PERIOD * 1 days);  
      }
-       function update_START_PREICO_TIMESTAMP( uint256 newTS)  onlyOwner {
+       function Update_START_PREICO_TIMESTAMP( uint256 newTS)  onlyOwner {
 	  START_PREICO_TIMESTAMP = newTS;
 	  END_PREICO_TIMESTAMP=START_PREICO_TIMESTAMP+(PREICO_PERIOD * 1 days);  
      }
      
-        function update_START_ICO_TIMESTAMP( uint256 newTS)  onlyOwner {
-	  START_ICO_TIMESTAMP = newTS;
-	 END_ICO_TIMESTAMP=START_ICO_TIMESTAMP+(ICO_PERIOD * 1 days);  
-	  LOCKUP_3M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(90 * 1 days);  
- LOCKUP_6M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(180 * 1 days);  
+        function Update_START_ICO_TIMESTAMP( uint256 newTS)  onlyOwner {
+	    START_ICO_TIMESTAMP = newTS;
+	    END_ICO_TIMESTAMP=START_ICO_TIMESTAMP+(ICO_PERIOD * 1 days);  
+	    LOCKUP_3M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(90 * 1 days);  
+        LOCKUP_6M_ICO_TIMESTAMP=END_ICO_TIMESTAMP+(180 * 1 days);  
      }
      
   
-  function updateSellAgent(address new_address) onlyOwner {
+  function UpdateSellAgent(address new_address) onlyOwner {
    addressSellAgent=new_address;
   }
   
-function updateSellAgentSiteReg(address new_address) onlyOwner {
+function UpdateSellAgentSiteReg(address new_address) onlyOwner {
    addressSellAgentSiteReg=new_address;
   }
-  function updateSellAgentBounty(address new_address) onlyOwner {
+  function UpdateSellAgentBounty(address new_address) onlyOwner {
    addressSellAgentBounty=new_address;
   }
-  function updateSellAgentCreators(address new_address) onlyOwner {
+  function UpdateSellAgentCreators(address new_address) onlyOwner {
    addressSellAgentCreators=new_address;
   }
-  function updateAddressPayForService(address new_address) onlyOwner {
+  function UpdateAddressPayForService(address new_address) onlyOwner {
    addressPayForService=new_address;
+  }
+  
+   function UpdateRateAgent(address new_address) onlyOwner {
+   addressRateAgent=new_address;
   }
 
  
-   function transferSellAgent(address _to, uint256 _value) returns (bool) {
+   function TransferSellAgent(address _to, uint256 _value) external returns (bool) {
       require(msg.sender==addressSellAgent) ;
 
     balances[owner] = balances[owner].sub(_value);
@@ -261,7 +271,7 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
     return true;
   }
   
-  function transferSellAgentMulti(address[] _toes, uint256 _value) returns (bool) {
+  function TransferSellAgentMulti(address[] _toes, uint256 _value) external returns (bool) {
       require(msg.sender==addressSellAgent) ;
       
        require(  balances[owner]>=_value.mul(_toes.length));
@@ -281,7 +291,7 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
   
   
   
-     function transferSellAgentSiteReg(address _to, uint256 _value) returns (bool) {
+     function TransferSellAgentSiteReg(address _to, uint256 _value) external returns (bool) {
     require(msg.sender==addressSellAgentSiteReg) ;
     require(tokensForSiteReg>=_value);
     
@@ -294,8 +304,8 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
     return true;
   }
   
-    function transferSellAgentSiteRegMulti(address[] _toes, uint256 _value) returns (bool) {
-    require(msg.sender==addressSellAgentSiteReg) ;
+    function TransferSellAgentSiteRegMulti(address[] _toes, uint256 _value) external returns (bool) {
+    require(msg.sender==addressSellAgentSiteReg);
     require(tokensForSiteReg>=_value.mul(_toes.length));
     
      for (uint i = 0; i < _toes.length; i++) {
@@ -305,16 +315,12 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
         TransferSiteReg(_toes[i], _value);
         }
         
-
-   
-
-  
     return true;
   }
   
   
   
-  function transferSellAgentBounty(address _to, uint256 _value) returns (bool) {
+  function TransferSellAgentBounty(address _to, uint256 _value) external returns (bool) {
     require(msg.sender==addressSellAgentBounty) ;
     require(tokensForBounty>=_value);
      require(now>END_ICO_TIMESTAMP );
@@ -326,7 +332,7 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
     return true;
   }
   
-    function transferSellAgentCreators(address _to, uint256 _value) returns (bool) {
+    function TransferSellAgentCreators(address _to, uint256 _value) external returns (bool) {
     require(msg.sender==addressSellAgentCreators) ;
     require(tokensForCreators>=_value);
     require(now>END_ICO_TIMESTAMP );
@@ -363,10 +369,7 @@ function updateSellAgentSiteReg(address new_address) onlyOwner {
   
   
     function() external payable isSelling {
-        
-        
-     
-      
+
      uint tokens = exchangeRate.mul(5000).mul(msg.value).div(1 ether);
      uint newBalance=exchangeRate.mul(msg.value+owner.balance).div(1 ether);
 
@@ -441,12 +444,22 @@ if (now>START_PREICO_TIMESTAMP&&now<END_PREICO_TIMESTAMP)
   }
     function PayForServiceCHL(uint256 _value)  external    {
      
-      require( balances[msg.sender]>=_value&&_value>0);
+      require(balances[msg.sender]>=_value&&_value>0);
       
       balances[msg.sender] = balances[msg.sender].sub(_value);
       balances[addressPayForService] = balances[addressPayForService].add(_value);
       PayForServiceCHLEvent(msg.sender,_value);
       
   }
+  function BurnTokensFrom(address _from, uint256 _value) external onlyOwner  {
+    require (balances[_from] >= _value&&_value>0);                
+   
+    balances[_from]  = balances[_from].sub(_value);
+    totalSupply =totalSupply.sub(_value);
+    BurnFrom(_from, _value);
+   
+}
   
 }
+
+ 
